@@ -1,83 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Benjamin Abel Meirhaeghe</title>
-        <link rel="icon" href="" type="image/jpg">
-        <meta name="keywords" content="">
-        <meta name="author" content="Deveny Faruque">
-        <meta name="robots" content="index, follow">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-          <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/gsap.min.js"></script>
-
-
-        <style>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B A M</title>
+<style>
+ :root {
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html, body { height: 100%; margin: 0; }
 body {
-background-color:black;
-margin:0;
-padding:0;
-left:0;
-top:0;
-width:100vw;
-height: 100%;
-}
-.fornow {
-  position: relative;
-  height: 100vh;
-  width: 100%;
+  background: #fff;
+  color: #000;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  text-align: center;
 }
-   .bino{ 
-  display: block;
-  position: absolute;
-       width: 60vw;
-       height: auto;
-   }
-   .txt{
-       height: 100vh;
-       position: absolute;
-       top: 0;
-       right: 0;
-       mix-blend-mode: lighten;
-       opacity: 0.9;
-   }
+.logo {
+  width: min(86vw, 740px);
+  min-height: clamp(110px, 22vw, 290px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.6rem;
+}
+.logo img { max-width: 100%; max-height: clamp(110px, 22vw, 290px); height: auto; display: block; }
+.label { font-size: clamp(1.1rem, 3vw, 1.6rem); letter-spacing: -0.01em; text-transform: uppercase; }
+.bar {
+  width: min(70vw, 400px);
+  border: 6px solid #000;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 6px;
+  box-sizing: border-box;
+}
+.block { height: clamp(20px, 5vw, 40px); background: transparent; }
+.block.on { background: #000; }
+.note {
+  margin-top: 1.6rem;
+  font-size: clamp(0.9rem, 2.4vw, 1.15rem);
+  color: #000;
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+  <div class="logo">
+    <img src="fornow/logobenji.jpg" alt="BAM"> 
+  </div>
+  <div class="label">Loading</div>
+  <div class="bar" id="bar" aria-hidden="true"></div>
+  <div class="label">Under construction</div>
+  <a class="note" href="www.benjaminabelmeirhaeghe.com">Klik hier om het werk van Benjamin Abel Meirhaeghe te ontdekken.</a>
 
-   @media only screen and (max-width: 800px) {
-    .txt{
-       height: 100%;
+<script>
+  const bar = document.getElementById('bar');
+  const TOTAL = 12;
+  for (let i = 0; i < TOTAL; i++) {
+    const b = document.createElement('div');
+    b.className = 'block';
+    bar.appendChild(b);
   }
-}
-        </style>
-</head><body>
-    <div class="fornow">
-        <h1>under construction
-        </h1>
-                <img class="txt" src="/fornow/uc.png">
-    <img class="bino" src="/fornow/BINO_2.1.1.png">
-</div>
-        </div>
-</body>
-    <script>
-$( document ).ready(function() {
-        $(".fornow").mousemove(function(e) {
-  parallaxIt(e, ".bino", -100);
-  parallaxIt(e, ".txt", -10);
-});
+  const blocks = [...bar.children];
+  const set = n => blocks.forEach((b, i) => b.classList.toggle('on', i < n));
+  const rand = (a, b) => Math.round(a + Math.random() * (b - a));
 
-function parallaxIt(e, target, movement) {
-  var $this = $(".fornow");
-  var relX = e.pageX - $this.offset().left;
-  var relY = e.pageY - $this.offset().top;
+  // Builds a new random attempt every cycle: [filled blocks, ms to hold].
+  // Never goes above 4 blocks.
+  function makePlan() {
+    const plan = [[0, rand(600, 1300)]];
+    const target = Math.random() < 0.5 ? 2 : 3;
 
-  TweenMax.to(target, 1, {
-    x: (relX - $this.width() / 2) / $this.width() * movement,
-    y: (relY - $this.height() / 2) / $this.height() * movement
-  });
-}
-});
+    for (let n = 1; n <= target; n++) {
+      plan.push([n, rand(400, 950)]);
+      if (n >= 2 && Math.random() < 0.3) {          // stumble back one block
+        plan.push([n - 1, rand(150, 350)]);
+        plan.push([n, rand(300, 650)]);
+      }
+    }
+    plan.push([target, rand(900, 1900)]);            // hang
+
+    let cur = target;
+    if (Math.random() < 0.6) {                       // brief 4th block
+      plan.push([4, rand(90, 230)]);
+      cur = 4;
+    }
+    for (let k = cur - 1; k >= 0; k--) {             // air leaks out
+      plan.push([k, k === 0 ? rand(1300, 2800) : rand(50, 220)]);
+    }
+    if (Math.random() < 0.3) {                       // lonely false start
+      plan.push([1, rand(400, 850)], [0, rand(900, 1800)]);
+    }
+    return plan;
+  }
+
+  let plan = [], i = 0;
+  function step() {
+    if (i >= plan.length) { plan = makePlan(); i = 0; }
+    const [n, ms] = plan[i++];
+    set(n);
+    setTimeout(step, ms);
+  }
+  step();
 </script>
+</body>
 </html>
